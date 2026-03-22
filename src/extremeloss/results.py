@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
+from scipy.stats import genextreme
 
 
 @dataclass(slots=True)
@@ -103,6 +104,68 @@ class GPDFit:
         }
         if self.covariance is not None:
             out["covariance"] = np.asarray(self.covariance, dtype=float)
+        return out
+
+
+@dataclass(slots=True)
+class GEVFit:
+    """Fitted generalized extreme value distribution for block maxima."""
+
+    xi: float
+    loc: float
+    scale: float
+    n_blocks: int
+    block_size: int | None = None
+    fit_method: str = "mle"
+    covariance: np.ndarray | None = None
+
+    def return_level(self, period: float) -> float:
+        if period <= 1.0:
+            raise ValueError("period must exceed 1.0")
+        p = 1.0 - 1.0 / period
+        return float(genextreme.ppf(p, c=-self.xi, loc=self.loc, scale=self.scale))
+
+    def cdf(self, x: float) -> float:
+        return float(genextreme.cdf(x, c=-self.xi, loc=self.loc, scale=self.scale))
+
+    def summary(self) -> dict[str, Any]:
+        out: dict[str, Any] = {
+            "xi": float(self.xi),
+            "loc": float(self.loc),
+            "scale": float(self.scale),
+            "n_blocks": int(self.n_blocks),
+            "fit_method": self.fit_method,
+        }
+        if self.block_size is not None:
+            out["block_size"] = int(self.block_size)
+        if self.covariance is not None:
+            out["covariance"] = np.asarray(self.covariance, dtype=float)
+        return out
+
+
+@dataclass(slots=True)
+class BootstrapResult:
+    """Bootstrap uncertainty summary for a scalar statistic."""
+
+    estimate: float
+    bootstrap_estimates: np.ndarray
+    method: str = "percentile"
+    ci: tuple[float, float] | None = None
+    stderr: float | None = None
+    alpha: float | None = None
+
+    def summary(self) -> dict[str, Any]:
+        out: dict[str, Any] = {
+            "estimate": float(self.estimate),
+            "method": self.method,
+            "n_bootstrap": int(self.bootstrap_estimates.size),
+        }
+        if self.stderr is not None:
+            out["stderr"] = float(self.stderr)
+        if self.ci is not None:
+            out["ci"] = (float(self.ci[0]), float(self.ci[1]))
+        if self.alpha is not None:
+            out["alpha"] = float(self.alpha)
         return out
 
 

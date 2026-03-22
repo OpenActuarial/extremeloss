@@ -4,7 +4,7 @@ import math
 
 import numpy as np
 
-from ..protocols import SupportsSample
+from ..protocols import SupportsLosses, SupportsSample, SupportsSimulationResult
 
 
 def as_1d_float_array(values, name: str = "values") -> np.ndarray:
@@ -53,9 +53,20 @@ def validate_weights(weights) -> np.ndarray:
     return w
 
 
+def validate_probabilities(probabilities, name: str = "probabilities") -> np.ndarray:
+    arr = as_1d_float_array(probabilities, name=name)
+    if np.any((arr < 0.0) | (arr > 1.0)):
+        raise ValueError(f"{name} must lie in [0, 1]")
+    return arr
+
+
 def coerce_losses(data, size: int | None = None) -> np.ndarray:
     if isinstance(data, np.ndarray) or isinstance(data, (list, tuple)):
         return as_1d_float_array(data, name="losses")
+    if isinstance(data, SupportsSimulationResult) or hasattr(data, "losses"):
+        return as_1d_float_array(getattr(data, "losses"), name="losses")
+    if isinstance(data, SupportsLosses) and hasattr(data, "losses"):
+        return as_1d_float_array(data.losses, name="losses")
     if isinstance(data, SupportsSample) or hasattr(data, "sample"):
         if size is None:
             raise ValueError("size must be provided when data is a model-like object")
@@ -68,5 +79,5 @@ def coerce_losses(data, size: int | None = None) -> np.ndarray:
             )
         return arr
     raise TypeError(
-        "data must be a one-dimensional array-like object or implement sample(size)"
+        "data must be a one-dimensional array-like object, expose losses, or implement sample(size)"
     )
