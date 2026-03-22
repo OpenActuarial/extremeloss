@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "extremeloss"
+version = "0.1.0"
+description = "Extreme-loss estimation and tail risk analytics in Python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Michael Bryant" }]
+keywords = [
+  "actuarial",
+  "risk",
+  "extreme value theory",
+  "tail risk",
+  "rare events",
+  "simulation",
+]
+dependencies = [
+  "numpy>=1.22",
+  "scipy>=1.8",
+  "matplotlib>=3.6",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Financial and Insurance Industry",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/michaelabryant/extremeloss"
+Repository = "https://github.com/michaelabryant/extremeloss"
+Issues = "https://github.com/michaelabryant/extremeloss/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+license-files = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
