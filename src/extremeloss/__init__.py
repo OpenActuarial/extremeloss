@@ -39,18 +39,21 @@ from .evt import (
 from .integration import (
     component_tail_metrics,
     fit_pot_from_lossmodel,
+    fit_spliced_gpd,
+    splice_gpd_tail,
     layer_tail_metrics,
     losses_from_risksim,
     sample_lossmodel,
     tail_summary_from_risksim,
 )
-from .results import BootstrapResult, GEVFit, GPDFit, TailEstimateResult, ThresholdScan
+from .results import BootstrapResult, GEVFit, GPDFit, GPDTail, TailEstimateResult, ThresholdScan
 from .utils import bootstrap_statistic, bootstrap_tail_probability, bootstrap_tvar, bootstrap_var
 
 __all__ = [
     "BootstrapResult",
     "GEVFit",
     "GPDFit",
+    "GPDTail",
     "TailEstimateResult",
     "ThresholdScan",
     "block_return_level",
@@ -81,6 +84,8 @@ __all__ = [
     "fit_gpd",
     "fit_pot",
     "fit_pot_from_lossmodel",
+    "fit_spliced_gpd",
+    "splice_gpd_tail",
     "gpd_tail_probability",
     "gpd_tvar",
     "gpd_var",
@@ -101,4 +106,4 @@ __all__ = [
     "threshold_diagnostic_table",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

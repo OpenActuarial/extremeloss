@@ -4,7 +4,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-from scipy.stats import genextreme
+from scipy.stats import genextreme, genpareto
+
+
+def _scalarize(result, x):
+    """Return a float for scalar input and a float ndarray for array input."""
+    if np.ndim(x) == 0:
+        return float(result)
+    return np.asarray(result, dtype=float)
 
 
 @dataclass(slots=True)
@@ -187,3 +194,60 @@ class ThresholdScan:
             "beta": np.asarray(self.beta, dtype=float),
             "n_exceedances": np.asarray(self.n_exceedances, dtype=int),
         }
+
+@dataclass(slots=True)
+class GPDTail:
+    """Conditional generalized-Pareto tail on ``[threshold, inf)``, for splicing.
+
+    A thin distribution object wrapping ``scipy.stats.genpareto`` with shape
+    ``xi``, scale ``beta`` and location ``threshold``. Unlike :class:`GPDFit`
+    (which carries the exceedance rate and reports *unconditional* VaR/TVaR),
+    this represents the tail *conditional* on ``X > threshold``: ``cdf(threshold)
+    == 0`` and the density integrates to one over ``[threshold, inf)``. It
+    exposes the ``cdf`` / ``pdf`` / ``sample`` / ``quantile`` / ``mean`` /
+    ``variance`` interface that :class:`lossmodels.SplicedSeverity` consumes as a
+    tail. Moments raise when they do not exist (``xi >= 1`` for the mean,
+    ``xi >= 1/2`` for the variance), mirroring heavy-tailed severities.
+    """
+
+    threshold: float
+    xi: float
+    beta: float
+
+    @classmethod
+    def from_fit(cls, fit: "GPDFit") -> "GPDTail":
+        """Build a conditional tail from a fitted :class:`GPDFit`."""
+        return cls(threshold=float(fit.threshold), xi=float(fit.xi), beta=float(fit.beta))
+
+    def _frozen(self):
+        return genpareto(c=self.xi, loc=self.threshold, scale=self.beta)
+
+    def pdf(self, x):
+        return _scalarize(self._frozen().pdf(np.asarray(x, dtype=float)), x)
+
+    def cdf(self, x):
+        return _scalarize(self._frozen().cdf(np.asarray(x, dtype=float)), x)
+
+    def quantile(self, p):
+        return _scalarize(self._frozen().ppf(np.asarray(p, dtype=float)), p)
+
+    def ppf(self, p):
+        return self.quantile(p)
+
+    def sample(self, size: int = 1) -> np.ndarray:
+        if size <= 0:
+            raise ValueError("size must be positive.")
+        return genpareto.rvs(c=self.xi, loc=self.threshold, scale=self.beta, size=size)
+
+    def mean(self) -> float:
+        if self.xi >= 1.0:
+            raise ValueError("mean does not exist for xi >= 1.")
+        return float(self.threshold + self.beta / (1.0 - self.xi))
+
+    def variance(self) -> float:
+        if self.xi >= 0.5:
+            raise ValueError("variance does not exist for xi >= 1/2.")
+        return float(self.beta ** 2 / ((1.0 - self.xi) ** 2 * (1.0 - 2.0 * self.xi)))
+
+    def summary(self) -> dict[str, float]:
+        return {"threshold": float(self.threshold), "xi": float(self.xi), "beta": float(self.beta)}
