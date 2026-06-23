@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1
+
+### Added (packaging)
+- `splice` optional-dependency extra (`pip install extremeloss[splice]`) declaring
+  `lossmodels>=0.4.0`, which `fit_spliced_gpd` / `splice_gpd_tail` require. The
+  import remains lazy, so the base install is unchanged. Note: resolving the extra
+  needs `lossmodels>=0.4.0` available on your index.
+
+### Fixed
+- Corrected stale repository links in the README (`michaelabryant` -> `actuarialpy`).
+
 ## 0.2.0
 
 ### Added

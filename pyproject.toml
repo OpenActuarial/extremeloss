@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "extremeloss"
-version = "0.2.0"
+version = "0.2.1"
 description = "Extreme-loss estimation and tail risk analytics in Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,6 +39,9 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
+]
+splice = [
+  "lossmodels>=0.4.0",
 ]
 
 [project.urls]

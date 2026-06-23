@@ -4,8 +4,8 @@
 
 It is designed to sit alongside:
 
-- [`lossmodels`](https://github.com/michaelabryant/lossmodels) for actuarial loss distributions and aggregate modeling
-- [`risksim`](https://github.com/michaelabryant/risksim) for portfolio and contract-level simulation
+- [`lossmodels`](https://github.com/actuarialpy/lossmodels) for actuarial loss distributions and aggregate modeling
+- [`risksim`](https://github.com/actuarialpy/risksim) for portfolio and contract-level simulation
 
 The package focuses on the part of the loss distribution that is hardest to estimate well: the **far tail**.
 
