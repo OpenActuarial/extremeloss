@@ -45,9 +45,9 @@ splice = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/actuarialpy/extremeloss"
-Repository = "https://github.com/actuarialpy/extremeloss"
-Issues = "https://github.com/actuarialpy/extremeloss/issues"
+Homepage = "https://github.com/openactuarial/extremeloss"
+Repository = "https://github.com/openactuarial/extremeloss"
+Issues = "https://github.com/openactuarial/extremeloss/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
