@@ -9,17 +9,17 @@ Extreme value theory, tail-risk estimation, and rare-event diagnostics.
 
 ## Overview
 
-`extremeloss` focuses on the part of a loss distribution that is hardest to
+**`extremeloss`** focuses on the part of a loss distribution that is hardest to
 estimate well: the **far tail**. It provides peaks-over-threshold and block-maxima
 workflows, generalized-Pareto and generalized-extreme-value fits, tail-index
 estimators, tail risk measures (VaR/TVaR) with uncertainty, importance-sampling and
 bootstrap machinery, and threshold diagnostics — all returning rich result objects
 you can summarize, plot, and feed back into the rest of a modeling pipeline.
 
-It is built to sit alongside `lossmodels` (loss distributions and aggregate models)
-and `risksim` (portfolio and contract simulation): it can fit a tail directly from
-a `lossmodels` object, splice a fitted tail onto a body distribution, or analyze a
-`risksim` simulation result. Its only hard dependencies are `numpy` and `scipy`.
+It is built to sit alongside **`lossmodels`** (loss distributions and aggregate models)
+and **`risksim`** (portfolio and contract simulation): it can fit a tail directly from
+a **`lossmodels`** object, splice a fitted tail onto a body distribution, or analyze a
+**`risksim`** simulation result. Its only hard dependencies are **`numpy`** and **`scipy`**.
 
 ## Highlights
 
@@ -36,8 +36,8 @@ a `lossmodels` object, splice a fitted tail onto a body distribution, or analyze
   and effective sample size.
 - **Bootstrap** — resampling uncertainty for tail probabilities, VaR, TVaR, and
   arbitrary scalar statistics.
-- **Ecosystem integration** — fit tails from `lossmodels` objects, splice GPD tails
-  onto bodies, and summarize `risksim` simulations.
+- **Ecosystem integration** — fit tails from **`lossmodels`** objects, splice GPD tails
+  onto bodies, and summarize **`risksim`** simulations.
 
 ## Installation
 
@@ -51,9 +51,9 @@ From source:
 pip install -e .
 ```
 
-Requires Python `>=3.10` with `numpy` and `scipy`. The integration helpers use
-`lossmodels` / `risksim` objects when present, and the optional plotting helpers
-require `matplotlib`.
+Requires Python `>=3.10` with **`numpy`** and **`scipy`**. The integration helpers use
+**`lossmodels`** / **`risksim`** objects when present, and the optional plotting helpers
+require **`matplotlib`**.
 
 ## Package structure
 
@@ -254,12 +254,12 @@ u = tail.threshold
 spliced = SplicedSeverity(body=body, tail=tail, threshold=u, weight=body.cdf(u))
 ```
 
-The spliced object is a full `lossmodels` severity, so it drops straight back into a
-collective-risk model or a `risksim` portfolio.
+The spliced object is a full **`lossmodels`** severity, so it drops straight back into a
+collective-risk model or a **`risksim`** portfolio.
 
 ## Ecosystem integration
 
-`extremeloss` reads directly from `lossmodels` and `risksim` objects:
+**`extremeloss`** reads directly from **`lossmodels`** and **`risksim`** objects:
 
 | Helper | Purpose |
 | --- | --- |
@@ -287,9 +287,9 @@ With `matplotlib` installed, the `extremeloss.plotting` module offers diagnostic
 plots — `plot_mean_excess(losses, thresholds)`, `plot_hill_curve(losses)`, and
 `plot_exceedance_curve(losses, thresholds)` (each accepts an optional `ax`).
 
-## The ActuarialPy ecosystem
+## The OpenActuarial ecosystem
 
-`extremeloss` is the tail-modeling layer of a small family of actuarial packages
+**`extremeloss`** is the tail-modeling layer of a small family of actuarial packages
 that interoperate through the `.sample()` / `.mean()` interface:
 
 - **`lossmodels`** — frequency / severity distributions, aggregate (collective-risk)
