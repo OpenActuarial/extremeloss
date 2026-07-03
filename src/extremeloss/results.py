@@ -234,10 +234,11 @@ class GPDTail:
     def ppf(self, p):
         return self.quantile(p)
 
-    def sample(self, size: int = 1) -> np.ndarray:
+    def sample(self, size: int = 1, rng: np.random.Generator | int | None = None) -> np.ndarray:
         if size <= 0:
             raise ValueError("size must be positive.")
-        return genpareto.rvs(c=self.xi, loc=self.threshold, scale=self.beta, size=size)
+        random_state = None if rng is None else np.random.default_rng(rng)
+        return genpareto.rvs(c=self.xi, loc=self.threshold, scale=self.beta, size=size, random_state=random_state)
 
     def mean(self) -> float:
         if self.xi >= 1.0:

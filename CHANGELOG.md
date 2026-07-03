@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.1
+
+### Fixed
+
+- `GPDTail.sample` accepts the shared `rng` argument (`None`, seed, or
+  `Generator`) per the ecosystem reproducibility convention. Previously,
+  passing `rng` through a spliced severity — e.g.
+  `CollectiveRiskModel.sample(..., rng=...)` with a `splice_gpd_tail`
+  severity — raised `TypeError`.
+
+### Changed
+
+- More descriptive package `description` metadata.
+
+### Added
+
+- Conformance, identity, and integration test suites (scipy/closed-form
+  conformance, mathematical identities, cross-package seams). Example
+  scripts are now executed by the test suite.
+
 ## 0.4.0
 
 ### Changed

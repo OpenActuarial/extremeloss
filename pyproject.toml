@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "extremeloss"
-version = "0.4.0"
-description = "Extreme-loss estimation and tail risk analytics in Python"
+version = "0.4.1"
+description = "Extreme-value tail estimation for large claims: peaks-over-threshold GPD fitting, threshold diagnostics, return levels, and severity splicing."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
