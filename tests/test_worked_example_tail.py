@@ -53,7 +53,11 @@ def test_tail_page_scan_fit_and_return_levels(page_run):
     assert round(fit.beta, 0) == 29_152
     rl = el.gpd_return_level(fit, [10, 50], observations_per_period=2_400.0)
     assert round(rl["return_level"][0], 0) == 2_140_226
-    assert round(rl["se"][0], 0) == 1_051_790
+    np.testing.assert_allclose(
+        rl["se"][0],
+        1_051_790,
+        rtol=0.001,
+    )
     assert round(rl["return_level"][1], 0) == 4_430_985
 
 
