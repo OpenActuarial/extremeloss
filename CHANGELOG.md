@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.6.0
+
+Block-maxima parity and fit adequacy: the uncertainty treatment
+GPD got in 0.5.0, extended to GEV, plus the tools that ask
+whether a fit succeeded at all.
+
+### Added
+- **GEV uncertainty.** `fit_gev` now populates the (previously
+  always-empty) `GEVFit.covariance` with the observed-information
+  covariance of `(xi, loc, scale)` -- the same treatment `fit_pot` got,
+  removing the asymmetry where switching from POT to block maxima
+  silently lost all error bars. New `GEVFit.se` property and
+  `gev_return_level` with delta-method confidence intervals (Coles,
+  2001, section 3.3.3); point estimates agree exactly with
+  `GEVFit.return_level` / `analytics.block_return_level`.- **Fitted-model diagnostics.** The threshold tools ask where GPD
+  behavior starts; these ask whether the fit succeeded. `qq_points` and
+  `pp_points` (data functions, GPD and GEV), and
+  `parametric_bootstrap_gof` -- KS and Anderson-Darling with p-values
+  from a parametric bootstrap that *refits inside every replicate*
+  (naive fixed-parameter p-values are anti-conservative when the
+  parameters were estimated from the same data). Graphical companions in
+  the `plot` extra: `plot_gpd_diagnostics` and `plot_gev_diagnostics`,
+  the Coles four-panel exhibits (probability, quantile, return level
+  with band and empirical points, density).
 ## 0.5.0
 
 ### Added
@@ -24,6 +48,8 @@
   perfect GPD), so threshold selection becomes "where do `xi` and `beta*`
   flatten *within their confidence bands*". New `ThresholdScan` fields are
   optional and default to `None`; existing consumers are unaffected.
+
+
 - **Tail protocol.** `GPDFit.sf(x)` (alias of `tail_probability`) and
   `GPDFit.mean_excess(d)` (closed form, `ValueError` below the threshold,
   `inf` for `xi >= 1`) -- the same two-method protocol `lossmodels`

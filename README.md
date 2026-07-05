@@ -1,5 +1,7 @@
 # extremeloss
 
+[![CI](https://github.com/OpenActuarial/extremeloss/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenActuarial/extremeloss/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/extremeloss)](https://pypi.org/project/extremeloss/)
+
 Extreme value theory, tail-risk estimation, and rare-event diagnostics.
 
 ---

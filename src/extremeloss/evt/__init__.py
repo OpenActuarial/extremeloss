@@ -1,10 +1,15 @@
-from .block_maxima import block_return_level, fit_block_maxima, fit_gev, make_blocks
+from .diagnostics import parametric_bootstrap_gof, pp_points, qq_points
+from .block_maxima import gev_return_level, block_return_level, fit_block_maxima, fit_gev, make_blocks
 from .gpd import fit_gpd, gpd_return_level, gpd_tail_probability, gpd_tvar, gpd_var
 from .pot import extract_exceedances, fit_pot
 from .tail_index import hill_curve, hill_estimator, pickands_estimator
 from .thresholds import mean_excess, threshold_diagnostic_table
 
 __all__ = [
+    "qq_points",
+    "pp_points",
+    "parametric_bootstrap_gof",
+    "gev_return_level",
     "block_return_level",
     "extract_exceedances",
     "fit_block_maxima",

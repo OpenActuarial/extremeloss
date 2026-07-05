@@ -160,6 +160,15 @@ class GEVFit:
     fit_method: str = "mle"
     covariance: np.ndarray | None = None
 
+    @property
+    def se(self):
+        """Standard errors of ``(xi, loc, scale)``, or ``None``."""
+        if self.covariance is None:
+            return None
+        import numpy as _np
+
+        return _np.sqrt(_np.maximum(_np.diag(_np.asarray(self.covariance)), 0.0))
+
     def return_level(self, period: float) -> float:
         if period <= 1.0:
             raise ValueError("period must exceed 1.0")
