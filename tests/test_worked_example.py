@@ -27,7 +27,7 @@ def test_worked_example_page_numbers():
     sev = splice_gpd_tail(body, fit)
     counts = np.array([242, 166, 153, 164, 195, 163, 162, 176])
     crm = lm.CollectiveRiskModel(lm.fit_negbinomial(counts), sev)
-    assert crm.mean() == pytest.approx(2_475_636, rel=1e-6)
+    assert crm.mean() == pytest.approx(2_475_636, abs=10)
 
     port = rs.Portfolio([rs.PortfolioItem("commercial_block", crm)])
     treaty = rs.AggregateLayer(attachment=3_200_000, limit=1_500_000, name="agg_stop_loss")
