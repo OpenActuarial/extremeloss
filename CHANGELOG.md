@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.0
+
+### Added
+- **GPD parameter uncertainty.** `fit_gpd` and `fit_pot` now populate the
+  (previously always-empty) `GPDFit.covariance` field with the
+  observed-information covariance of `(xi, beta)` -- the numerical Hessian
+  of the GPD log-likelihood at the MLE, inverted. When the information
+  matrix is not positive definite (the MLE is irregular for `xi <= -1/2`
+  and near-boundary fits) the field stays `None` rather than carrying a
+  covariance that means nothing. New `GPDFit.se` property.
+- **`gpd_return_level`.** Return levels with delta-method confidence
+  intervals over `(zeta_u, xi, beta)`, including the binomial variance of
+  the exceedance rate (Coles, 2001, section 4.3.3). Vectorized over return
+  periods with explicit `observations_per_period` semantics; the point
+  estimates agree with the existing `GPDFit.return_level` /
+  `analytics.return_level` exactly, which now serve as the scalar
+  shorthand.
+- **Threshold scan with error bands.** `threshold_diagnostic_table` gains
+  `xi_se`, `modified_scale`, and `modified_scale_se` columns. The modified
+  scale `beta* = beta - xi * u` is the quantity that is actually constant
+  above a valid threshold (raw `beta` drifts linearly in `u` even under a
+  perfect GPD), so threshold selection becomes "where do `xi` and `beta*`
+  flatten *within their confidence bands*". New `ThresholdScan` fields are
+  optional and default to `None`; existing consumers are unaffected.
+- **Tail protocol.** `GPDFit.sf(x)` (alias of `tail_probability`) and
+  `GPDFit.mean_excess(d)` (closed form, `ValueError` below the threshold,
+  `inf` for `xi >= 1`) -- the same two-method protocol `lossmodels`
+  severities expose, so a fitted tail plugs into
+  `ratingmodels.pooling_charge_from_severity` directly.
+
 ## 0.4.1
 
 ### Fixed

@@ -24,10 +24,13 @@ def fit_pot(data, threshold: float, method: str = "mle") -> GPDFit:
     xi_hat, loc_hat, beta_hat = genpareto.fit(exceedances, floc=0.0)
     if loc_hat != 0.0:
         raise RuntimeError("GPD fit returned nonzero location despite floc=0")
+    from .gpd import _gpd_covariance
+
     return GPDFit(
         threshold=float(threshold),
         xi=float(xi_hat),
         beta=float(beta_hat),
+        covariance=_gpd_covariance(exceedances, float(xi_hat), float(beta_hat)),
         exceedance_fraction=float(exceedances.size / x.size),
         n_exceedances=int(exceedances.size),
         fit_method=method,

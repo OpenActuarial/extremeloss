@@ -62,6 +62,40 @@ class GPDFit:
     fit_method: str = "mle"
     covariance: np.ndarray | None = None
 
+    @property
+    def se(self):
+        """Standard errors of ``(xi, beta)``, or ``None`` without covariance."""
+        if self.covariance is None:
+            return None
+        import numpy as _np
+
+        return _np.sqrt(_np.maximum(_np.diag(_np.asarray(self.covariance)), 0.0))
+
+    def sf(self, x: float) -> float:
+        """Unconditional survival ``P(X > x)``; alias of ``tail_probability``.
+
+        Half of the small tail protocol (with :meth:`mean_excess`) consumed
+        by e.g. ``ratingmodels.pooling_charge_from_severity``.
+        """
+        return self.tail_probability(x)
+
+    def mean_excess(self, d: float) -> float:
+        r"""Mean excess ``E[X - d | X > d]`` above the threshold, closed form.
+
+        For the GPD, :math:`e(d) = (\beta + \xi\,(d - u)) / (1 - \xi)` for
+        :math:`d \ge u` and :math:`\xi < 1`; infinite for :math:`\xi \ge 1`
+        (the tail has no mean). Below the threshold the GPD says nothing --
+        a ``ValueError`` rather than a silent extrapolation.
+        """
+        if d < self.threshold:
+            raise ValueError(
+                "mean_excess is defined by the GPD only at or above the "
+                f"threshold ({self.threshold}); got {d}"
+            )
+        if self.xi >= 1.0:
+            return float("inf")
+        return float((self.beta + self.xi * (d - self.threshold)) / (1.0 - self.xi))
+
     def tail_probability(self, x: float) -> float:
         from .evt.gpd import gpd_tail_probability
 
@@ -178,22 +212,38 @@ class BootstrapResult:
 
 @dataclass(slots=True)
 class ThresholdScan:
-    """Threshold-diagnostic results across a grid of thresholds."""
+    r"""Threshold-diagnostic results across a grid of thresholds.
+
+    ``modified_scale`` is :math:`\beta^* = \beta - \xi u`: above any valid
+    GPD threshold both :math:`\xi` and :math:`\beta^*` are constant in
+    ``u``, so the threshold-selection question is "where do these flatten
+    *within their confidence bands*" -- which is why the standard-error
+    columns exist. Raw :math:`\beta` drifts linearly in ``u`` even under a
+    perfect GPD and diagnoses nothing.
+    """
 
     thresholds: np.ndarray
     mean_excess: np.ndarray
     xi: np.ndarray
     beta: np.ndarray
     n_exceedances: np.ndarray
+    xi_se: np.ndarray | None = None
+    modified_scale: np.ndarray | None = None
+    modified_scale_se: np.ndarray | None = None
 
     def to_dict(self) -> dict[str, np.ndarray]:
-        return {
+        out = {
             "thresholds": np.asarray(self.thresholds, dtype=float),
             "mean_excess": np.asarray(self.mean_excess, dtype=float),
             "xi": np.asarray(self.xi, dtype=float),
             "beta": np.asarray(self.beta, dtype=float),
             "n_exceedances": np.asarray(self.n_exceedances, dtype=int),
         }
+        for name in ("xi_se", "modified_scale", "modified_scale_se"):
+            value = getattr(self, name)
+            if value is not None:
+                out[name] = np.asarray(value, dtype=float)
+        return out
 
 @dataclass(slots=True)
 class GPDTail:
