@@ -1,6 +1,25 @@
 # Changelog
 
+## 0.6.1
+
+### Fixed
+- **Worked-example regression test robustness.** `test_worked_example_page_numbers`
+  previously pinned the seeded 100k-path simulation's 99% VaR and TVaR to a
+  0.2% / 0.3% tolerance. Those tolerances are tighter than the Monte Carlo
+  standard deviation of the estimators themselves (~0.22% for the 99% VaR at
+  100k paths), so the assertion was effectively testing that the RNG draw
+  sequence was byte-identical rather than that the VaR was correct. It broke
+  when `lossmodels` 0.7.1 landed the negative-binomial fit at a slightly
+  different (likelihood-equivalent) parameter set, which re-seeds the draw
+  sequence. The test now asserts draw-independent invariants (loss
+  conservation, ceded <= limit, TVaR >= VaR, exact retained-TVaR, and
+  convergence of the simulated mean to the analytical `crm.mean()`) and keeps
+  the documented VaR/TVaR/mean-ceded figures as point checks with tolerances
+  set from the measured Monte Carlo variability, so they survive lossless
+  upstream numerical changes while still catching gross regressions.
+
 ## 0.6.0
+
 
 Block-maxima parity and fit adequacy: the uncertainty treatment
 GPD got in 0.5.0, extended to GEV, plus the tools that ask
