@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2
+
+### Added
+- Docstrings in bootstrap.py, pot.py, and tail_index.py. 
+
 ## 0.6.1
 
 ### Fixed

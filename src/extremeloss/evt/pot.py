@@ -8,6 +8,38 @@ from ..utils.validation import as_1d_float_array, validate_threshold
 
 
 def extract_exceedances(data, threshold: float) -> np.ndarray:
+    r"""Excesses of the data over a threshold (peaks-over-threshold data).
+
+    Returns the positive excesses :math:`X_i - u` for every observation above
+    the threshold :math:`u` -- the exceedance data on which a generalized
+    Pareto tail is fitted. Note the return is *excesses* (measured from the
+    threshold), not the raw exceeding values, matching the convention of the
+    GPD fitters, which take excesses with location fixed at zero.
+
+    Parameters
+    ----------
+    data : array-like
+        Observations to threshold.
+    threshold : float
+        The threshold :math:`u`. Only strictly-exceeding observations
+        (``x > threshold``) contribute.
+
+    Returns
+    -------
+    numpy.ndarray
+        The excesses ``x - threshold`` for all ``x > threshold``, in the
+        original data order.
+
+    Raises
+    ------
+    ValueError
+        If ``threshold`` is invalid, or if no observation exceeds it (an
+        empty exceedance set cannot support a tail fit).
+
+    See Also
+    --------
+    fit_gpd : Fit a GPD to a set of excesses.
+    """
     validate_threshold(threshold)
     x = as_1d_float_array(data, name="data")
     exceedances = x[x > threshold] - threshold
