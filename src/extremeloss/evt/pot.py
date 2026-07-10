@@ -49,6 +49,47 @@ def extract_exceedances(data, threshold: float) -> np.ndarray:
 
 
 def fit_pot(data, threshold: float, method: str = "mle") -> GPDFit:
+    r"""Peaks-over-threshold fit: a GPD for the excesses of ``data`` over ``threshold``.
+
+    Selects the observations strictly above the threshold :math:`u`, fits a
+    generalized Pareto distribution to their excesses :math:`x - u` by maximum
+    likelihood (location fixed at zero), and returns a :class:`GPDFit` carrying
+    the empirical exceedance rate ``n_exceedances / n`` -- so the fit quotes
+    *unconditional*, ground-up tail quantities (``sf``, VaR/TVaR, return
+    levels) out of the box. The observed-information covariance of
+    ``(xi, beta)`` is attached when the information matrix is positive
+    definite (``None`` otherwise; the MLE is irregular for
+    :math:`\xi \le -1/2`).
+
+    Parameters
+    ----------
+    data : array-like
+        Ground-up loss observations (the full sample, not pre-extracted
+        excesses -- for excesses already in hand use :func:`fit_gpd`).
+    threshold : float
+        The POT threshold :math:`u`. Choose it with
+        :func:`threshold_diagnostic_table`.
+    method : str, optional
+        Only ``"mle"`` is currently supported.
+
+    Returns
+    -------
+    GPDFit
+        Fitted ``(xi, beta)`` above ``threshold``, with
+        ``exceedance_fraction``, ``n_exceedances``, and (when available)
+        the parameter ``covariance``.
+
+    Raises
+    ------
+    ValueError
+        If no observation exceeds the threshold, or ``method`` is not
+        ``"mle"``.
+
+    See Also
+    --------
+    fit_gpd : The same fit when the excesses are already extracted.
+    threshold_diagnostic_table : Scan candidate thresholds before committing.
+    """
     if method != "mle":
         raise ValueError("only method='mle' is currently supported")
     x = as_1d_float_array(data, name="data")

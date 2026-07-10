@@ -8,6 +8,38 @@ from ..utils.validation import as_1d_float_array, validate_positive
 
 
 def make_blocks(data, block_size: int, *, drop_last: bool = True) -> np.ndarray:
+    """Block maxima: the maximum of each consecutive ``block_size`` observations.
+
+    Partitions the data, in the given order, into consecutive blocks and
+    returns each block's maximum -- the sample a GEV fit consumes. With
+    ``drop_last=True`` (default) a trailing partial block is discarded, so
+    every maximum comes from a full block; ``drop_last=False`` keeps the
+    partial block's maximum.
+
+    Parameters
+    ----------
+    data : array-like
+        Observations, in block order (e.g. chronological).
+    block_size : int
+        Observations per block.
+    drop_last : bool, optional
+        Whether to drop a trailing partial block (default True).
+
+    Returns
+    -------
+    numpy.ndarray
+        The block maxima.
+
+    Raises
+    ------
+    ValueError
+        If ``block_size`` exceeds the data length, or fewer than two
+        blocks result (a GEV fit needs at least two maxima).
+
+    See Also
+    --------
+    fit_block_maxima : Blocking and fitting in one call.
+    """
     validate_positive(block_size, name="block_size")
     x = as_1d_float_array(data, name="data")
     block_size = int(block_size)
@@ -31,6 +63,34 @@ def make_blocks(data, block_size: int, *, drop_last: bool = True) -> np.ndarray:
 
 
 def fit_gev(block_maxima, method: str = "mle", *, block_size: int | None = None) -> GEVFit:
+    r"""Fit a generalized extreme value distribution to block maxima.
+
+    Maximum-likelihood GEV fit in the package's parameterization -- ``xi``
+    positive for heavy tails (SciPy's ``genextreme`` shape is ``c = -xi``).
+    The observed-information covariance of ``(xi, loc, scale)`` is attached
+    when the information matrix is positive definite (``None`` otherwise;
+    the MLE is irregular for :math:`\xi \le -1/2`).
+
+    Parameters
+    ----------
+    block_maxima : array-like
+        The per-block maxima (see :func:`make_blocks`); at least two.
+    method : str, optional
+        Only ``"mle"`` is currently supported.
+    block_size : int, optional
+        Recorded on the result for bookkeeping; not used by the fit.
+
+    Returns
+    -------
+    GEVFit
+        Fitted ``(xi, loc, scale)`` with ``n_blocks`` and, when available,
+        the parameter ``covariance``.
+
+    See Also
+    --------
+    fit_block_maxima : Blocking and fitting in one call.
+    gev_return_level : Return levels with delta-method intervals.
+    """
     if method != "mle":
         raise ValueError("only method='mle' is currently supported")
     x = as_1d_float_array(block_maxima, name="block_maxima")
@@ -97,11 +157,24 @@ def _gev_covariance(block_maxima, xi: float, loc: float, scale: float):
 
 
 def fit_block_maxima(data, block_size: int, method: str = "mle", *, drop_last: bool = True) -> GEVFit:
+    """Block the data and fit the GEV in one call.
+
+    Equivalent to ``fit_gev(make_blocks(data, block_size,
+    drop_last=drop_last), block_size=block_size)``; arguments as for those
+    two functions.
+    """
     maxima = make_blocks(data, block_size=block_size, drop_last=drop_last)
     return fit_gev(maxima, method=method, block_size=block_size)
 
 
 def block_return_level(period: float, fit: GEVFit) -> float:
+    """The ``period``-block GEV return level (the quantile at ``1 - 1/period``).
+
+    Thin wrapper over :meth:`GEVFit.return_level` with the domain check
+    that ``period`` exceeds one block. Periods are in *blocks*: with
+    annual maxima, ``period=100`` is the 100-year level. For confidence
+    intervals use :func:`gev_return_level`.
+    """
     if period <= 1.0:
         raise ValueError("period must exceed 1.0")
     return fit.return_level(period)

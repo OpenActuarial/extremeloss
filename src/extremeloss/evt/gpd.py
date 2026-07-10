@@ -80,6 +80,30 @@ def gpd_tail_probability(
     beta: float,
     exceedance_fraction: float,
 ) -> float:
+    r"""Unconditional GPD tail probability :math:`P(X > x)` above a POT threshold.
+
+    For :math:`x > u`, returns
+    :math:`\zeta_u \, (1 + \xi (x - u)/\beta)^{-1/\xi}` (exponential form
+    as :math:`\xi \to 0`), where :math:`\zeta_u` is the exceedance rate;
+    for :math:`x \le u` it returns :math:`\zeta_u` itself -- the GPD says
+    nothing below its threshold. Zero beyond the finite upper endpoint when
+    :math:`\xi < 0`.
+
+    Parameters
+    ----------
+    x : float
+        The loss level.
+    threshold, xi, beta : float
+        POT threshold :math:`u` and the fitted GPD shape and scale.
+    exceedance_fraction : float
+        The exceedance rate :math:`\zeta_u = P(X > u)`, e.g.
+        ``GPDFit.exceedance_fraction``.
+
+    Returns
+    -------
+    float
+        Ground-up (unconditional) :math:`P(X > x)`.
+    """
     validate_threshold(threshold)
     if beta <= 0.0:
         raise ValueError("beta must be positive")
@@ -103,6 +127,39 @@ def gpd_var(
     beta: float,
     exceedance_fraction: float,
 ) -> float:
+    r"""Unconditional GPD value-at-risk: the ``p``-quantile of the ground-up loss.
+
+    Inverts the POT tail: with exceedance rate :math:`\zeta_u`,
+
+    .. math::
+        \mathrm{VaR}_p = u + \frac{\beta}{\xi}
+        \left[\left(\frac{1 - p}{\zeta_u}\right)^{-\xi} - 1\right]
+
+    (:math:`u + \beta \log(\zeta_u / (1 - p))` as :math:`\xi \to 0`).
+    Valid only when the quantile lands in the fitted tail, i.e.
+    :math:`1 - p < \zeta_u`; otherwise a ``ValueError`` -- below the
+    threshold the GPD has nothing to say.
+
+    Parameters
+    ----------
+    p : float
+        Quantile level in ``(0, 1)``, e.g. ``0.995``.
+    threshold, xi, beta : float
+        POT threshold :math:`u` and the fitted GPD shape and scale.
+    exceedance_fraction : float
+        The exceedance rate :math:`\zeta_u`, e.g.
+        ``GPDFit.exceedance_fraction``.
+
+    Returns
+    -------
+    float
+        The ground-up ``p``-quantile.
+
+    See Also
+    --------
+    gpd_tvar : The matching expected shortfall.
+    gpd_return_level : Return levels with delta-method intervals.
+    """
     validate_q(p)
     validate_threshold(threshold)
     if beta <= 0.0:
@@ -127,6 +184,18 @@ def gpd_tvar(
     beta: float,
     exceedance_fraction: float,
 ) -> float:
+    r"""Unconditional GPD tail value-at-risk (expected shortfall) at level ``p``.
+
+    Closed form on top of :func:`gpd_var`:
+
+    .. math::
+        \mathrm{TVaR}_p = \frac{\mathrm{VaR}_p + \beta - \xi u}{1 - \xi},
+        \qquad \xi < 1.
+
+    Infinite for :math:`\xi \ge 1` (the tail has no mean) -- a
+    ``ValueError`` rather than a silent ``inf``. Arguments as for
+    :func:`gpd_var`.
+    """
     if xi >= 1.0:
         raise ValueError("TVaR is infinite for xi >= 1")
     var_p = gpd_var(p, threshold, xi, beta, exceedance_fraction)

@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.6.3
+
+### Fixed
+- **Worked-example regression test vs actuarialpy 0.44.** `test_worked_example_page_numbers`
+  still imported `UnderwritingSummary` from `actuarialpy`, which moved to
+  `experiencestudies` in the 0.43/0.44 split — the next push to this repo
+  would have failed CI (the green badge predated the move). The test now
+  imports from `experiencestudies`, and `experiencestudies>=0.3` joins the
+  `dev` extras so the module is actually present in CI rather than the test
+  silently skipping.
+- `pip install -e ".[dev]" && pytest` now works without the `plot` extra:
+  `test_plotting.py` skips via `pytest.importorskip("matplotlib")` instead
+  of failing collection at import time.
+- Two unused test imports (ruff F401).
+
+### Added
+- **Docstrings for all 30 previously undocumented public names** — `fit_pot`,
+  `fit_gev`, `fit_block_maxima`, `make_blocks`, `block_return_level`,
+  `gpd_var` / `gpd_tvar` / `gpd_tail_probability`, `mean_excess`,
+  `threshold_diagnostic_table`, `return_level` / `return_period`,
+  `exceedance_probability`, `extreme_loss_summary`, the importance-sampling
+  estimators and diagnostics, the empirical `estimate_var` / `estimate_tvar`
+  wrappers, and the risksim/lossmodels integration helpers. Sphinx
+  `automodule :members:` silently omits objects without a docstring, so all
+  of these were absent from the API reference on openactuarial.org.
+- A guard test (`tests/test_public_api_docstrings.py`) asserting every
+  function and class in `__all__` carries a docstring, turning a silent
+  autodoc omission into a CI failure.
+
 ## 0.6.2
 
 ### Added

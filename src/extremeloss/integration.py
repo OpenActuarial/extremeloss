@@ -26,6 +26,16 @@ def sample_lossmodel(model, size: int) -> np.ndarray:
 
 
 def losses_from_risksim(result, *, view: str = "losses") -> np.ndarray:
+    """Extract a 1-D loss array from a risksim-style simulation result.
+
+    Accepts any object exposing the requested attribute -- ``view`` may be
+    ``"losses"``, ``"gross"`` / ``"gross_losses"``, ``"retained"`` /
+    ``"retained_losses"``, or ``"ceded"`` / ``"ceded_losses"`` -- and
+    returns it as a float array. Duck-typed: nothing risksim-specific is
+    required beyond the attribute. Raises ``ValueError`` for an unknown
+    view or one that is ``None`` on this result, ``TypeError`` if the
+    attribute is absent.
+    """
     attr = _RISKSIM_VIEWS.get(view)
     if attr is None:
         raise ValueError(f"unknown view {view!r}")
@@ -38,16 +48,44 @@ def losses_from_risksim(result, *, view: str = "losses") -> np.ndarray:
 
 
 def fit_pot_from_lossmodel(model, *, size: int, threshold: float):
+    """Sample a lossmodels-style severity and POT-fit its tail in one call.
+
+    Draws ``size`` losses from ``model`` (anything
+    :func:`sample_lossmodel` accepts) and returns
+    ``fit_pot(losses, threshold=threshold)`` -- how a fitted severity's
+    tail reads through the peaks-over-threshold lens.
+    """
     losses = sample_lossmodel(model, size=size)
     return fit_pot(losses, threshold=threshold)
 
 
 def tail_summary_from_risksim(result, *, view: str = "losses", thresholds=None, quantiles=(0.95, 0.99, 0.995)) -> dict[str, object]:
+    """Tail summary of a risksim simulation result: extract the view, then summarize.
+
+    ``extreme_loss_summary(losses_from_risksim(result, view=view), ...)``
+    in one call: ``n`` / ``mean`` / ``std`` / ``min`` / ``max``, empirical
+    VaR/TVaR at each quantile, and the exceedance curve when
+    ``thresholds`` is given.
+    """
     losses = losses_from_risksim(result, view=view)
     return extreme_loss_summary(losses, thresholds=thresholds, quantiles=quantiles)
 
 
 def component_tail_metrics(result, *, q: float = 0.99, threshold: float | None = None) -> dict[str, dict[str, float]]:
+    """Per-component empirical VaR/TVaR from a risksim result's component losses.
+
+    Reads the ``(n_sims, n_components)`` array ``result.component_losses``
+    (names from ``component_names`` when present) and returns, per
+    component, the empirical VaR and TVaR at level ``q``, plus the
+    exceedance probability of ``threshold`` when one is given. These are
+    marginal, per-component metrics -- diversified totals belong to the
+    portfolio-level summary.
+
+    Returns
+    -------
+    dict of str -> dict of str -> float
+        ``{name: {"var", "tvar"[, "exceedance_probability"]}}``.
+    """
     validate_q(q)
     if not hasattr(result, "component_losses"):
         raise TypeError("result does not expose component_losses")
@@ -70,6 +108,19 @@ def component_tail_metrics(result, *, q: float = 0.99, threshold: float | None =
 
 
 def layer_tail_metrics(result, *, q: float = 0.99, threshold: float | None = None) -> dict[str, dict[str, float]]:
+    """Per-layer empirical VaR/TVaR from a risksim result's layer losses.
+
+    The layer analogue of :func:`component_tail_metrics`: reads the
+    ``(n_sims, n_layers)`` array ``result.layer_losses`` (names from
+    ``layer_names`` when present) and returns, per layer, the empirical
+    VaR and TVaR at level ``q``, plus the exceedance probability of
+    ``threshold`` when one is given.
+
+    Returns
+    -------
+    dict of str -> dict of str -> float
+        ``{name: {"var", "tvar"[, "exceedance_probability"]}}``.
+    """
     validate_q(q)
     if not hasattr(result, "layer_losses"):
         raise TypeError("result does not expose layer_losses")

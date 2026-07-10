@@ -7,7 +7,7 @@ import risksim as rs
 from extremeloss import fit_pot, splice_gpd_tail
 
 rmod = pytest.importorskip("ratingmodels")
-ap = pytest.importorskip("actuarialpy")
+ap = pytest.importorskip("experiencestudies")
 
 
 def test_worked_example_page_numbers():

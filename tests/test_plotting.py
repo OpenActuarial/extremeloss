@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-import matplotlib
-matplotlib.use('Agg')
 import numpy as np
+import pytest
 
-from extremeloss.plotting import plot_exceedance_curve, plot_hill_curve, plot_mean_excess
+matplotlib = pytest.importorskip("matplotlib")
+matplotlib.use("Agg")
+
+from extremeloss.plotting import (  # noqa: E402
+    plot_exceedance_curve,
+    plot_hill_curve,
+    plot_mean_excess,
+)
 
 
 def test_plotting_helpers_return_axes_objects():

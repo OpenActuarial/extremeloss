@@ -22,6 +22,32 @@ def normalized_weights(weights) -> np.ndarray:
 
 
 def stabilize_weights(weights, *, clip_quantile: float | None = None, renormalize: bool = True) -> np.ndarray:
+    """Clip extreme importance weights at an upper quantile, then renormalize.
+
+    With ``clip_quantile=c``, weights are capped at their own
+    ``c``-quantile -- the standard variance-for-bias trade when a few
+    weights dominate the sample; ``renormalize=True`` (default) rescales
+    to sum to one afterwards. With ``clip_quantile=None`` this only
+    (optionally) normalizes.
+
+    Parameters
+    ----------
+    weights : array-like
+        Nonnegative importance weights (need not be normalized).
+    clip_quantile : float, optional
+        Cap level in ``(0, 1]``; ``None`` disables clipping.
+    renormalize : bool, optional
+        Rescale to sum to one after clipping (default True).
+
+    Returns
+    -------
+    numpy.ndarray
+        The stabilized weights.
+
+    See Also
+    --------
+    importance_sampling_diagnostics : Check whether stabilization is needed.
+    """
     w = validate_weights(weights).copy()
     if clip_quantile is not None:
         if not (0.0 < clip_quantile <= 1.0):
@@ -34,6 +60,28 @@ def stabilize_weights(weights, *, clip_quantile: float | None = None, renormaliz
 
 
 def log_importance_weights(log_target_density, log_proposal_density, *, normalize: bool = True) -> np.ndarray:
+    r"""Importance weights from log-densities, computed stably in log space.
+
+    :math:`w_i \propto \exp(\log f(x_i) - \log g(x_i))` for target
+    :math:`f` and proposal :math:`g`. With ``normalize=True`` (default)
+    the weights are self-normalized via ``logsumexp`` -- the numerically
+    safe route when the densities span many orders of magnitude, exactly
+    the regime importance sampling is used for. With ``normalize=False``
+    the raw (exponentiated) ratios are returned.
+
+    Parameters
+    ----------
+    log_target_density, log_proposal_density : array-like
+        Log-densities of the two distributions at the sampled points;
+        equal lengths.
+    normalize : bool, optional
+        Self-normalize the weights to sum to one (default True).
+
+    Returns
+    -------
+    numpy.ndarray
+        The importance weights.
+    """
     log_t = as_1d_float_array(log_target_density, name="log_target_density")
     log_p = as_1d_float_array(log_proposal_density, name="log_proposal_density")
     if log_t.size != log_p.size:
@@ -46,11 +94,29 @@ def log_importance_weights(log_target_density, log_proposal_density, *, normaliz
 
 
 def effective_sample_size(weights) -> float:
+    r"""Kish effective sample size of a set of importance weights.
+
+    :math:`\mathrm{ESS} = 1 / \sum_i \bar w_i^2` for normalized weights
+    :math:`\bar w_i`: equal to ``n`` when all weights are equal,
+    approaching one as a single weight dominates. The headline diagnostic
+    for weight degeneracy -- the importance-sampling standard errors in
+    this module scale by :math:`\sqrt{\mathrm{ESS}}`, not
+    :math:`\sqrt{n}`.
+    """
     w = normalized_weights(weights)
     return float(1.0 / np.sum(w ** 2))
 
 
 def importance_sampling_diagnostics(weights) -> dict[str, float]:
+    """Weight-degeneracy diagnostics for an importance sample.
+
+    Normalizes the weights and returns ``effective_n`` (Kish ESS),
+    ``max_weight`` / ``min_weight``, ``coefficient_of_variation``, and
+    ``entropy`` (natural log). A max weight near one, or an ESS far below
+    ``n``, says the proposal is missing the target's mass and the
+    estimates carry more uncertainty than their nominal ``n`` suggests.
+    These diagnostics ride along on every ``estimate_*_is`` result.
+    """
     w = normalized_weights(weights)
     ess = float(1.0 / np.sum(w ** 2))
     cv = float(np.std(w, ddof=0) / np.mean(w))
@@ -99,6 +165,28 @@ def _validate_losses_weights(losses, weights) -> tuple[np.ndarray, np.ndarray]:
 
 
 def estimate_mean_is(values, weights, *, alpha: float = 0.05) -> TailEstimateResult:
+    r"""Self-normalized importance-sampling estimate of a mean, with a Wald CI.
+
+    :math:`\hat\mu = \sum_i \bar w_i x_i` for normalized weights
+    :math:`\bar w_i`. The standard error uses the weighted second moment
+    about :math:`\hat\mu` scaled by the *effective* sample size (Kish
+    ESS), not ``n`` -- degenerate weights widen the interval as they
+    should.
+
+    Parameters
+    ----------
+    values, weights : array-like
+        Sampled values and their importance weights (normalization not
+        required); equal lengths.
+    alpha : float, optional
+        Two-sided Wald level (default ``0.05``, a 95% interval).
+
+    Returns
+    -------
+    TailEstimateResult
+        ``estimate``, ``stderr``, ``ci``, ``n``, ``effective_n``, and the
+        weight diagnostics.
+    """
     validate_alpha(alpha)
     x, w = _validate_losses_weights(values, weights)
     estimate = float(np.sum(w * x))
@@ -123,6 +211,31 @@ def estimate_tail_probability_is(
     *,
     alpha: float = 0.05,
 ) -> TailEstimateResult:
+    r"""Self-normalized importance-sampling estimate of :math:`P(X > u)`, with a Wald CI.
+
+    The weighted exceedance-indicator mean
+    :math:`\sum_i \bar w_i \, 1\{x_i > u\}`, with the standard error
+    scaled by the effective sample size exactly as in
+    :func:`estimate_mean_is`. This is the payoff case for importance
+    sampling: a proposal tilted into the tail makes rare exceedances
+    common, so far fewer simulations are needed for a given precision.
+    The raw exceedance count rides in ``diagnostics``.
+
+    Parameters
+    ----------
+    losses, weights : array-like
+        Sampled losses and their importance weights; equal lengths.
+    threshold : float
+        The level :math:`u` whose exceedance probability is estimated.
+    alpha : float, optional
+        Two-sided Wald level (default ``0.05``).
+
+    Returns
+    -------
+    TailEstimateResult
+        ``estimate``, ``stderr``, ``ci``, ``n``, ``effective_n``,
+        ``threshold``, and the weight diagnostics.
+    """
     validate_threshold(threshold)
     validate_alpha(alpha)
     x, w = _validate_losses_weights(losses, weights)
@@ -146,6 +259,14 @@ def estimate_tail_probability_is(
 
 
 def estimate_exceedance_curve_is(losses, weights, thresholds) -> dict[str, np.ndarray]:
+    """Weighted exceedance curve: self-normalized ``P(X > u)`` over a threshold grid.
+
+    The importance-sampling analogue of the empirical exceedance curve --
+    each probability is the normalized-weight mass strictly above the
+    threshold. Returns ``{"thresholds", "probabilities"}`` as arrays.
+    Point estimates only; for a standard error at a single threshold use
+    :func:`estimate_tail_probability_is`.
+    """
     x, w = _validate_losses_weights(losses, weights)
     grid = as_1d_float_array(thresholds, name="thresholds")
     probs = np.array([np.sum(w * (x > u)) for u in grid], dtype=float)
@@ -153,6 +274,16 @@ def estimate_exceedance_curve_is(losses, weights, thresholds) -> dict[str, np.nd
 
 
 def estimate_var_is(losses, weights, q: float) -> TailEstimateResult:
+    r"""Weighted value-at-risk: the ``q``-quantile under the importance weights.
+
+    The weighted analogue of the ecosystem VaR convention
+    :math:`\inf\{x : F(x) \ge q\}`: with values sorted and weights
+    normalized, the first value whose cumulative weight reaches ``q``.
+    Reduces exactly to the empirical VaR under equal weights. No standard
+    error is attached (quantile standard errors under importance sampling
+    require a density estimate); the effective sample size and weight
+    diagnostics ride along.
+    """
     validate_q(q)
     x, w = _validate_losses_weights(losses, weights)
     estimate = _weighted_quantile(x, w, q)
@@ -203,6 +334,12 @@ def estimate_tvar_is(losses, weights, q: float) -> TailEstimateResult:
 
 
 def estimate_var_tvar_is(losses, weights, q: float) -> dict[str, TailEstimateResult]:
+    """Weighted VaR and TVaR at level ``q`` in one call.
+
+    Returns ``{"var": estimate_var_is(...), "tvar":
+    estimate_tvar_is(...)}`` -- the pair share the sorting and weighting
+    conventions, so the TVaR always sits at or above the VaR.
+    """
     return {
         "var": estimate_var_is(losses, weights, q=q),
         "tvar": estimate_tvar_is(losses, weights, q=q),

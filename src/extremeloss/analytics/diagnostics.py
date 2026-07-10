@@ -29,6 +29,28 @@ def extreme_loss_summary(
     thresholds=None,
     quantiles=(0.95, 0.99, 0.995),
 ) -> dict[str, object]:
+    """One-call tail summary of a loss sample: moments, VaR/TVaR table, exceedances.
+
+    Returns ``n`` / ``mean`` / ``std`` / ``min`` / ``max`` plus a
+    ``var_tvar`` row per quantile -- empirical VaR, TVaR, and their tail
+    ratio, under the ecosystem estimators; pass ``thresholds`` to add the
+    empirical ``exceedance_curve``. This is the summary
+    :func:`tail_summary_from_risksim` produces for a simulation result.
+
+    Parameters
+    ----------
+    losses : array-like
+        The loss sample.
+    thresholds : array-like, optional
+        Grid for the exceedance curve; omitted when ``None``.
+    quantiles : tuple of float, optional
+        Levels for the VaR/TVaR rows (default ``(0.95, 0.99, 0.995)``).
+
+    Returns
+    -------
+    dict
+        Summary statistics as above.
+    """
     arr = as_1d_float_array(losses, name="losses")
     out: dict[str, object] = {
         "n": int(arr.size),

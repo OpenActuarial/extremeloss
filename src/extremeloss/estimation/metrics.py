@@ -64,6 +64,12 @@ def empirical_tvar(losses, q):
 
 
 def exceedance_probability(losses, threshold: float) -> float:
+    """Empirical exceedance probability: the fraction of losses strictly above ``threshold``.
+
+    The plug-in estimator ``mean(losses > threshold)`` for
+    ``P(X > threshold)``. Strict inequality, matching the exceedance
+    convention used across the package.
+    """
     arr = as_1d_float_array(losses, name="losses")
     return float(np.mean(arr > threshold))
 

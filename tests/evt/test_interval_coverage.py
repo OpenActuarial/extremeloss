@@ -10,7 +10,6 @@ the last percent matters). The point of this test is that the number is
 for nominal 0.95.
 """
 import numpy as np
-import pytest
 from scipy.stats import genpareto
 
 import extremeloss as el

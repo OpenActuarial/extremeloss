@@ -50,6 +50,15 @@ def estimate_var(
     size: int | None = None,
     alpha: float = 0.05,
 ) -> TailEstimateResult:
+    """Empirical value-at-risk of simulated or observed losses, as a result object.
+
+    The ecosystem lower-quantile VaR wrapped in a
+    :class:`TailEstimateResult` with ``n`` and the quantile recorded.
+    ``data`` may be an array of losses or a lossmodels-style model to
+    sample (pass ``size``). No standard error is attached for the plain
+    empirical quantile; ``alpha`` is accepted for signature symmetry with
+    :func:`estimate_tvar`.
+    """
     validate_q(q)
     validate_alpha(alpha)
     losses = coerce_losses(data, size=size)
@@ -69,6 +78,18 @@ def estimate_tvar(
     size: int | None = None,
     alpha: float = 0.05,
 ) -> TailEstimateResult:
+    r"""Empirical tail value-at-risk with a normal-approximation confidence interval.
+
+    The ecosystem empirical TVaR at level ``q`` wrapped in a
+    :class:`TailEstimateResult`. The standard error treats the
+    observations at or above the empirical VaR as a sample and uses their
+    standard deviation over :math:`\sqrt{n_{\text{tail}}}` -- a
+    first-order approximation that ignores the variability of the VaR
+    threshold itself, so read the interval as indicative when the tail
+    sample is small. ``data`` may be an array or a lossmodels-style model
+    to sample (pass ``size``); the tail sample size rides in
+    ``diagnostics``.
+    """
     validate_q(q)
     validate_alpha(alpha)
     losses = coerce_losses(data, size=size)

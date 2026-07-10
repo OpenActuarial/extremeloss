@@ -1,6 +1,5 @@
 """fit_gpd fits pure excesses (exceedance_fraction == 1); its risk measures
 must be usable and equal the plain GPD quantities."""
-import numpy as np
 import pytest
 from scipy.stats import genpareto
 
