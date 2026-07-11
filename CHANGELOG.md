@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4
+
+Bump version number to update PyPI with updated README.
+
 ## 0.6.3
 
 ### Fixed
