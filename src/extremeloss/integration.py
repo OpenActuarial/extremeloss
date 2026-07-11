@@ -8,7 +8,6 @@ from .evt.pot import fit_pot
 from .results import GPDTail
 from .utils.validation import as_1d_float_array, coerce_losses, validate_q
 
-
 _RISKSIM_VIEWS = {
     "losses": "losses",
     "gross": "gross_losses",

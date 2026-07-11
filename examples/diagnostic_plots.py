@@ -16,8 +16,11 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from extremeloss.plotting import plot_exceedance_curve, plot_hill_curve, plot_mean_excess  # noqa: E402
-
+from extremeloss.plotting import (  # noqa: E402
+    plot_exceedance_curve,
+    plot_hill_curve,
+    plot_mean_excess,
+)
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 

@@ -30,7 +30,7 @@ def test_return_level_matches_method_and_inverts_cdf(gev_fit):
     fit, _ = gev_fit
     periods = np.array([10.0, 50.0, 200.0])
     out = el.gev_return_level(fit, periods)
-    for T, r in zip(periods, out["return_level"]):
+    for T, r in zip(periods, out["return_level"], strict=True):
         assert r == pytest.approx(fit.return_level(T), rel=1e-9)
         assert fit.cdf(r) == pytest.approx(1.0 - 1.0 / T, rel=1e-9)
     assert np.all(np.diff(out["return_level"]) > 0)

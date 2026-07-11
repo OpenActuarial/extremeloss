@@ -1,8 +1,7 @@
 """Regression: the tail-pricing worked-example page numbers stay true."""
+import lossmodels as lm
 import numpy as np
 import pytest
-
-import lossmodels as lm
 
 import extremeloss as el
 

@@ -1,9 +1,10 @@
 """The published claim: VaR/TVaR agree byte for byte across the ecosystem."""
 import numpy as np
 import pytest
-
 import risksim as rs
-from lossmodels.aggregate import tvar as lm_tvar, var as lm_var
+from lossmodels.aggregate import tvar as lm_tvar
+from lossmodels.aggregate import var as lm_var
+
 from extremeloss import empirical_tvar, empirical_var, tail_summary_from_risksim
 
 

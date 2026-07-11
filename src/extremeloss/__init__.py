@@ -27,9 +27,6 @@ from .evt import (
     fit_gpd,
     fit_pot,
     gev_return_level,
-    parametric_bootstrap_gof,
-    pp_points,
-    qq_points,
     gpd_return_level,
     gpd_tail_probability,
     gpd_tvar,
@@ -38,17 +35,20 @@ from .evt import (
     hill_estimator,
     make_blocks,
     mean_excess,
+    parametric_bootstrap_gof,
     pickands_estimator,
+    pp_points,
+    qq_points,
     threshold_diagnostic_table,
 )
 from .integration import (
     component_tail_metrics,
     fit_pot_from_lossmodel,
     fit_spliced_gpd,
-    splice_gpd_tail,
     layer_tail_metrics,
     losses_from_risksim,
     sample_lossmodel,
+    splice_gpd_tail,
     tail_summary_from_risksim,
 )
 from .results import BootstrapResult, GEVFit, GPDFit, GPDTail, TailEstimateResult, ThresholdScan
@@ -116,7 +116,8 @@ __all__ = [
     "threshold_diagnostic_table",
 ]
 
-from importlib.metadata import PackageNotFoundError as _PackageNotFoundError, version as _version
+from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
+from importlib.metadata import version as _version
 
 try:
     __version__ = _version("extremeloss")

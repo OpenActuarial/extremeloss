@@ -1,4 +1,9 @@
-from .bootstrap import bootstrap_statistic, bootstrap_tail_probability, bootstrap_tvar, bootstrap_var
+from .bootstrap import (
+    bootstrap_statistic,
+    bootstrap_tail_probability,
+    bootstrap_tvar,
+    bootstrap_var,
+)
 from .validation import (
     as_1d_float_array,
     coerce_losses,

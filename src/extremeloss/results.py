@@ -274,7 +274,7 @@ class GPDTail:
     beta: float
 
     @classmethod
-    def from_fit(cls, fit: "GPDFit") -> "GPDTail":
+    def from_fit(cls, fit: GPDFit) -> GPDTail:
         """Build a conditional tail from a fitted :class:`GPDFit`."""
         return cls(threshold=float(fit.threshold), xi=float(fit.xi), beta=float(fit.beta))
 

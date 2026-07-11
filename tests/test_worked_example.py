@@ -1,9 +1,9 @@
 """Regression: the docs worked-example page numbers stay true."""
+import lossmodels as lm
 import numpy as np
 import pytest
-
-import lossmodels as lm
 import risksim as rs
+
 from extremeloss import fit_pot, splice_gpd_tail
 
 rmod = pytest.importorskip("ratingmodels")

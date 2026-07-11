@@ -1,6 +1,6 @@
+import lossmodels
 import numpy as np
 
-import lossmodels
 from extremeloss import GPDFit, GPDTail, splice_gpd_tail
 
 

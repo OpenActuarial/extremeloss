@@ -6,7 +6,12 @@ import numpy as np
 from scipy.stats import norm
 
 from ..results import TailEstimateResult
-from ..utils.validation import validate_alpha, validate_probabilities, validate_threshold, validate_q
+from ..utils.validation import (
+    validate_alpha,
+    validate_probabilities,
+    validate_q,
+    validate_threshold,
+)
 
 
 def _normal_ci(estimate: float, stderr: float, alpha: float) -> tuple[float, float]:

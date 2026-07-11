@@ -43,7 +43,7 @@ def test_return_level_consistent_with_method_and_inverts_tail(pot_fit):
     periods = np.array([10.0, 50.0, 200.0])
     out = el.gpd_return_level(fit, periods, observations_per_period=obs_per_period)
     # exact agreement with the existing single-point method
-    for T, r in zip(periods, out["return_level"]):
+    for T, r in zip(periods, out["return_level"], strict=True):
         assert r == pytest.approx(fit.return_level(T * obs_per_period), rel=1e-9)
         # and the level inverts the unconditional tail exactly
         assert fit.tail_probability(r) * T * obs_per_period == pytest.approx(

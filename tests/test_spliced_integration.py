@@ -4,7 +4,8 @@ import pytest
 lossmodels = pytest.importorskip("lossmodels")
 
 from lossmodels import SplicedSeverity  # noqa: E402
-from extremeloss import fit_spliced_gpd, splice_gpd_tail, fit_pot, GPDTail  # noqa: E402
+
+from extremeloss import GPDTail, fit_pot, fit_spliced_gpd, splice_gpd_tail  # noqa: E402
 
 
 @pytest.fixture
