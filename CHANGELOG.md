@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.1
+
+Compatibility patch; no library-code changes.
+
+- One worked-example test asserted exact integer equality on a 50-year GPD
+  return level; scipy releases converge ~1e-7 apart on that optimum, which
+  flips the rounding. The assert now pins 6 significant figures
+  (`assert_allclose`, rtol=1e-6), matching the tolerance style the adjacent
+  standard-error assert already used. Found by the new minimum-dependency CI
+  job running at `scipy==1.8.0`.
+
+- Cap the optional actuarialpy integration at the next minor:
+  `>=0.46,<0.47`; cap the `splice` extra's lossmodels requirement at
+  `>=0.8,<0.9` (previously an open `>=0.4.0`).
+- Standardize the numpy floor: `numpy>=1.23`.
+- Refresh dev-extra sibling floors to the current release train.
+- Declare Python 3.14 support in the classifiers.
+- No code changes.
+
 ## 0.7.0
 
 Add `extremeloss.integrations.actuarialpy`: consume the canonical

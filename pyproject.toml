@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "extremeloss"
-version = "0.7.0"
+version = "0.7.1"
 description = "Extreme-value tail estimation for large claims: peaks-over-threshold GPD fitting, threshold diagnostics, return levels, and severity splicing."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -30,27 +30,28 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
-    "numpy>=1.22",
+    "numpy>=1.23",
     "scipy>=1.8",
 ]
 
 [project.optional-dependencies]
-actuarialpy = ["actuarialpy>=0.46"]
+actuarialpy = ["actuarialpy>=0.46,<0.47"]
 dev = [
-    "actuarialpy>=0.46",
+    "actuarialpy>=0.46,<0.47",
     "pytest>=8.0",
     # cross-package conformance and worked-example pin tests
-    "lossmodels>=0.7",
-    "risksim>=0.4",
-    "ratingmodels>=0.6",
-    "experiencestudies>=0.3",
+    "lossmodels>=0.8",
+    "risksim>=0.5",
+    "ratingmodels>=0.9",
+    "experiencestudies>=0.5",
 ]
 plot = ["matplotlib>=3.6"]
-splice = ["lossmodels>=0.4.0"]
+splice = ["lossmodels>=0.8,<0.9"]
 
 [project.urls]
 Homepage = "https://github.com/OpenActuarial/extremeloss"
