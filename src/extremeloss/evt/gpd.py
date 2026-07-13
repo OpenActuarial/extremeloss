@@ -6,7 +6,12 @@ import numpy as np
 from scipy.stats import genpareto
 
 from ..results import GPDFit
-from ..utils.validation import as_1d_float_array, validate_gpd_params, validate_q, validate_threshold
+from ..utils.validation import (
+    as_1d_float_array,
+    validate_gpd_params,
+    validate_q,
+    validate_threshold,
+)
 
 
 def fit_gpd(excesses, threshold: float = 0.0, method: str = "mle") -> GPDFit:
