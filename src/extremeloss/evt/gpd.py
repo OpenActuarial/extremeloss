@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import genpareto
 
 from ..results import GPDFit
-from ..utils.validation import as_1d_float_array, validate_q, validate_threshold
+from ..utils.validation import as_1d_float_array, validate_gpd_params, validate_q, validate_threshold
 
 
 def fit_gpd(excesses, threshold: float = 0.0, method: str = "mle") -> GPDFit:
@@ -104,11 +104,9 @@ def gpd_tail_probability(
     float
         Ground-up (unconditional) :math:`P(X > x)`.
     """
-    validate_threshold(threshold)
-    if beta <= 0.0:
-        raise ValueError("beta must be positive")
+    validate_gpd_params(threshold, xi, beta, exceedance_fraction, allow_zero_exceedance=True)
     if x <= threshold:
-        return float(min(1.0, exceedance_fraction))
+        return float(exceedance_fraction)
     y = (x - threshold) / beta
     if abs(xi) < 1e-10:
         surv = math.exp(-y)
@@ -161,11 +159,7 @@ def gpd_var(
     gpd_return_level : Return levels with delta-method intervals.
     """
     validate_q(p)
-    validate_threshold(threshold)
-    if beta <= 0.0:
-        raise ValueError("beta must be positive")
-    if exceedance_fraction <= 0.0 or exceedance_fraction > 1.0:
-        raise ValueError("exceedance_fraction must lie in (0, 1]")
+    validate_gpd_params(threshold, xi, beta, exceedance_fraction)
     tail_prob = 1.0 - p
     if tail_prob >= exceedance_fraction:
         raise ValueError(

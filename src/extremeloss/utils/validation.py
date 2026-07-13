@@ -40,6 +40,36 @@ def validate_positive(value: float, name: str = "value") -> None:
         raise ValueError(f"{name} must be positive")
 
 
+def validate_gpd_params(
+    threshold: float,
+    xi: float,
+    beta: float,
+    exceedance_fraction: float,
+    *,
+    allow_zero_exceedance: bool = False,
+) -> None:
+    """Validate the parameter set shared by the GPD tail functions.
+
+    Requires a finite threshold, finite shape ``xi``, a finite positive scale
+    ``beta``, and an ``exceedance_fraction`` (the exceedance rate :math:`\\zeta_u`)
+    in ``(0, 1]`` -- or ``[0, 1]`` when ``allow_zero_exceedance`` is set, which is
+    meaningful for a tail *probability* (a zero exceedance rate gives probability
+    zero) but not for an inverse-tail quantile like value-at-risk. This closes the
+    gap where an unvalidated ``exceedance_fraction`` could yield a negative or
+    above-one probability.
+    """
+    validate_threshold(threshold)
+    for label, val in (("xi", xi), ("beta", beta), ("exceedance_fraction", exceedance_fraction)):
+        if not math.isfinite(float(val)):
+            raise ValueError(f"{label} must be finite")
+    if beta <= 0.0:
+        raise ValueError("beta must be positive")
+    lo_ok = exceedance_fraction >= 0.0 if allow_zero_exceedance else exceedance_fraction > 0.0
+    if not (lo_ok and exceedance_fraction <= 1.0):
+        rng = "[0, 1]" if allow_zero_exceedance else "(0, 1]"
+        raise ValueError(f"exceedance_fraction must lie in {rng}")
+
+
 def validate_size(size: int) -> None:
     if size <= 0:
         raise ValueError("size must be positive")
